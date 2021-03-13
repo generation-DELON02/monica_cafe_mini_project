@@ -17,4 +17,9 @@ helps them to log and track orders.
 • I need to be sure my app has been tested and proven to work well.
 
 ## How To:
+This is a program that runs on the command line (CLI).
 Simply run the file, and follow the instructions in the terminal
+
+## Key learnings:
+• Reading and writing to both .txt files and .csv files
+• Writing MYSQL queries to access or update any row in the database
