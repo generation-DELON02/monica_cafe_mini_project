@@ -18,7 +18,10 @@ helps them to log and track orders.
 
 ## How To:
 This is a program that runs on the command line (CLI).
-Simply run the file, and follow the instructions in the terminal
+After cloning the repo, open the file called app_csv.py. All you need to do is change the paths on lines 7, 15 and 23 to your own local paths so that Python can find the CSVs when running the program.
+Then, just run the file, and follow the instructions in the terminal!
+
+The file named app_mysql.py is the final version of this project. There are less lines of code in this file due to some refactoring, and error handling has been imporved. However, this connects to a local MySQL database using Docker, so this file will only run successfully on my local computer.
 
 ## Key learnings:
 * Reading and writing to both .txt files and .csv files

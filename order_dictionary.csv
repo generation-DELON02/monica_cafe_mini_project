@@ -1,0 +1,11 @@
+customer_name,customer_address,customer_phone,courier,status,items
+Monica,"Flat 55, 12 Main Street, London, WM1 2WR",07944844262,2,preparing,"[1, 2, 3]"
+Jake,"Flat 54, 13 Main Street, London, WM1 2WR",07955844278,2,preparing,"[3, 5, 9]"
+Amy,"Flat 53, 14 Main Street, London, WM1 2WR",07912345678,2,preparing,"[2, 3, 4]"
+Rosa,"Flat 52, 15 Main Road, London, SE1 3EN",07998765432,2,preparing,"[2, 6, 5]"
+Raymond,"Flat 51, 16 Main Road, London, SE1 3EN",07911223344,2,preparing,"[11, 10, 3]"
+Gina,"Flat 50, 17 Main Road, London, SE1 3EN",07934985611,2,preparing,"[1, 3, 2]"
+Terry,"Flat 49, 18 Side Road, London, NW14 8TE",0799329872,2,preparing,"[1, 8, 9, 11]"
+Charles,"Flat 48, 19 Side Road, London, NW14 8TE",07938765432,2,preparing,"[3, 2, 4]"
+Hitchcock,"20 Side Road, London, NW14 8TE",07988234765,2,preparing,"[1, 2, 3, 4, 5, 6]"
+Scully,"21 Side Road, London, NW14 8TE",07988234764,2,preparing,"[7, 8, 9, 10, 11, 12]"
