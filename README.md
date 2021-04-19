@@ -23,16 +23,7 @@ After cloning the repo, open the file called app_csv.py. All you need to do is c
 
 Then, just run the file, and follow the instructions in the terminal!
 
-
-
-
-
-
-
-
-
-
-
+--
 
 The file named app_mysql.py is the final version of this project. There are less lines of code in this file due to some refactoring, and error handling has been imporved. However, this connects to a local MySQL database using Docker, so this file will only run successfully on my local computer.
 
