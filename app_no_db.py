@@ -1,37 +1,37 @@
 import csv
 import sys
 import os
-import pymysql
-from pymysql import cursors
-from dotenv import load_dotenv
 
-load_dotenv()
-host = os.environ.get("mysql_host")
-user = os.environ.get("mysql_user")
-password = os.environ.get("mysql_pass")
-database = os.environ.get("mysql_db")
-connection = pymysql.connect(
-    host,
-    user,
-    password,
-    database
-    )
-cursor = connection.cursor()
+def load_product_list():
+    list_of_products = []
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "r") as file:
+        csv_file = csv.DictReader(file)
+        for product in csv_file:
+            list_of_products.append(product)
+        return list_of_products
 
-def load_and_print_product_list():
-    cursor.execute('SELECT product_id, product_name, price FROM products')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f'Product ID: {str(row[0])}, Product Name: {row[1]}, Price: {row[2]}')
+def load_courier_list():
+    list_of_couriers = []
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "r") as file:
+        csv_file = csv.DictReader(file)
+        for courier in csv_file:
+            list_of_couriers.append(courier)
+        return list_of_couriers
 
-def load_and_print_courier_list():
-    cursor.execute('SELECT courier_id, courier_name, phone FROM couriers')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f'ID: {str(row[0])}, Courier Name: {row[1]}, Phone Number: {row[2]}')
+def load_order_list():
+    list_of_orders = []
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "r") as file:
+        csv_file = csv.DictReader(file, delimiter=",", quotechar='"', skipinitialspace=True)
+        for courier in csv_file:
+            list_of_orders.append(courier)
+        return list_of_orders
+# PUT EVERYTHING IN A TRY BLOCK INTO A FUNCTION? https://realpython.com/python-exceptions/#the-try-and-except-block-handling-exceptions
 
 def main_menu():
-    print("       Main Menu:\n")
+    load_product_list()
+    load_courier_list()
+    load_order_list()
+    print("Main Menu:")
     try:
         start = input("What would you like to do?\n"
                         "Press 1 to show Product Menu\n"
@@ -66,8 +66,7 @@ def main_menu():
 ######################################################       THE PRODUCT MENU       ######################################################
 
 def product_menu():
-    os.system("cls")
-    print("       Product Menu:\n")
+    print("Product Menu:")
     try:
         options = input("Press 0 to return to Main Menu\n"
                         "Press 1 to display the list of current products\n"
@@ -98,15 +97,18 @@ def product_menu():
     except KeyboardInterrupt:
         print("Keyboard Interrupt :)")
         os._exit(0)
-
+            
 def return_to_main_menu():
     print("Returning to Main Menu")
     return main_menu()
 
+def print_product_list_line_by_line():
+    for product in load_product_list():
+        print(product) 
+
 def display_list_of_products():
-    # os.system("cls")
     print("Here is the list of products:")
-    load_and_print_product_list()
+    print_product_list_line_by_line()
     while True:
         finished_looking = input("Press 0 to return to the Product Menu once you're done\n")
         if finished_looking == "0":
@@ -115,19 +117,18 @@ def display_list_of_products():
             print("Invalid input. Please enter again.")
     return product_menu()
 
-def append_product_to_db(new_product, new_price):
-    sql = "INSERT INTO products (product_name, price) VALUES (%s, %s)"
-    val = (new_product, new_price)
-    cursor.execute(sql, val)
-    connection.commit()
+def append_product_to_csv(new_product, new_price):
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "a") as file:
+        fieldnames = ["product_name", "price"]
+        writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator='\n')
+        writer.writerow({"product_name": new_product, "price": new_price})
 
 def create_new_product():
-    os.system("cls")
     print("Create New Product:")
     return create_new_product2()
 
 def create_new_product2():
-    load_and_print_product_list()
+    print_product_list_line_by_line()
     new_product = input("What product would you like to add?\n"
                         "You can press 0 to go back.\n").title()
     if new_product == "0":
@@ -135,13 +136,13 @@ def create_new_product2():
         return product_menu()
     else:
         new_price = input("What is the price of this product?\n")
-        append_product_to_db(new_product, new_price)
+        append_product_to_csv(new_product, new_price)
         print("You have successfully added {} to the list!".format(new_product))
-        load_and_print_product_list()
+        print(load_product_list())
         return create_another_product()
 
 def continue_adding_product_prompt():
-    continue_adding = input("\nWould you like to add anything else?\nPress 1 for Yes\nPress 2 for No\n")
+    continue_adding = input("Would you like to add anything else?\nPress 1 for Yes\nPress 2 for No\n")
     return continue_adding
 
 def continue_adding_product_result():
@@ -157,51 +158,62 @@ def continue_adding_product_result():
 def create_another_product():
     return continue_adding_product_result()
 
-def update_product_in_db(new_product, new_price, change_product):
-    cursor.execute("UPDATE products SET product_name=%s, price=%s WHERE product_id=%s", (new_product, new_price, change_product))
-    connection.commit()
+def convert_load_list_to_dictionary(objects):
+    objects_to_print = {}
+    line_num = 1
+    for an_object in objects:
+        objects_to_print[line_num] = an_object
+        line_num += 1
+    return objects_to_print
 
-def product_id_list():
-    cursor.execute("SELECT product_id FROM products")
-    result_set = cursor.fetchall()
-    result = []
-    for x in result_set:
-        result.append(x[0])
-    return result
+def product_dict():
+    return convert_load_list_to_dictionary(load_product_list())
+
+def courier_dict():
+    return convert_load_list_to_dictionary(load_courier_list())
+
+def order_dict():
+    return convert_load_list_to_dictionary(load_order_list())
+
+def print_object_dictionary_line_by_line(object_dict):
+    for key, value in object_dict.items():
+        print("{}: {}".format(key, value))
 
 def update_product():
-    os.system("cls")
     print("Update A Product:")
     return update_product2()
     
 def update_product2():
-    load_and_print_product_list()
-    product_id_list()
+    product_dict()
+    print_object_dictionary_line_by_line(product_dict())
     try:
         change_product = int(input("What product would you like to update?\nYou can press 0 to go back\n"))
         while True:
             if change_product == 0:
                 break
-            elif change_product in product_id_list():
+            elif change_product in product_dict().keys():
                 print("To update a product or price, enter what you would like to change it to. Or leave blank to skip:")
-                cursor.execute("SELECT product_name, price FROM products WHERE product_id=(%s)", (change_product))
-                selected_product = cursor.fetchall()
-                new_product = input("Current product: {}\nReplace with: ".format(selected_product[0][0])).title()
+                new_product = input("Current product: {}\nReplace with: ".format(product_dict()[change_product]["product_name"])).title()
                 if new_product == "":
-                    new_product = selected_product[0][0]
+                    new_product = product_dict()[change_product]["product_name"]
                 else:
-                    pass
-                new_price = input("Current price: {}\nReplace with: ".format(selected_product[0][1]))
+                    product_dict()[change_product]["product_name"] = new_product
+                new_price = input("Current price: {}\nReplace with: ".format(product_dict()[change_product]["price"]))
                 if new_price == "":
-                    new_price = selected_product[0][1]
+                    new_price = product_dict()[change_product]["price"]
                 else:
-                    pass
-                print(new_product, new_price)
-                update_product_in_db(new_product, new_price, change_product)
-                load_and_print_product_list()
-                cursor.execute("SELECT product_name, price FROM products WHERE product_id=(%s)", (change_product))
-                selected_product = cursor.fetchall()
-                print("You have successfully updated number {}:\nProduct name: {}. Price: {}".format(change_product, selected_product[0][0], selected_product[0][1]))
+                    product_dict()[change_product]["price"] = new_price
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "r") as file:
+                    reader = csv.reader(file.readlines())
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "w") as f:
+                    writer = csv.writer(f, lineterminator='\n')
+                    for i, line in enumerate(reader, 0):
+                        if i == change_product:
+                            writer.writerow([new_product, new_price])
+                        else:
+                            writer.writerow(line)
+                print(product_dict())
+                print("You have successfully updated number {}:\nProduct name: {}. Price: {}".format(change_product, product_dict()[change_product]["product_name"], product_dict()[change_product]["price"]))
                 return update_another_product()
             else:
                 change_product = int(input("Sorry, that isn't in the list. Please enter again\n"))
@@ -214,7 +226,7 @@ def update_product2():
         os._exit(0)
 
 def change_product_prompt():
-    change_product = input("\nWould you like to update anything else?\nPress 1 for Yes\nPress 2 for No\n")
+    change_product = input("Would you like to update anything else?\nPress 1 for Yes\nPress 2 for No\n")
     return change_product
 
 def change_product_result():
@@ -230,31 +242,30 @@ def change_product_result():
 def update_another_product():
     return change_product_result()
 
-def delete_product_in_db(delete_product):
-    cursor.execute("DELETE FROM products WHERE product_id=%s", (delete_product))
-    connection.commit()
-
 def delete_a_product():
-    os.system("cls")
     print("Delete A Product:")
     return delete_a_product2()
 
 def delete_a_product2():
-    load_and_print_product_list()
-    product_id_list()
+    product_dict()
+    print_object_dictionary_line_by_line(product_dict())
     try:
         delete_product = int(input("What product would you like to delete?\nYou can press 0 to go back\n"))
         while True:
             if delete_product == 0:
                 break
-            elif delete_product in product_id_list():
-                cursor.execute("SELECT product_name, price FROM products WHERE product_id=(%s)", (delete_product))
-                selected_product = cursor.fetchall()
-                confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format((selected_product[0]))))
+            elif delete_product in product_dict().keys():
+                confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format(product_dict()[delete_product])))
                 if confirm == 1:
-                    print("You've successfully deleted {} from the list!".format(selected_product[0][0]))
-                    delete_product_in_db(delete_product)
-                    load_and_print_product_list()
+                    print("You've successfully deleted {} from the list!".format(product_dict()[delete_product]["product_name"]))
+                    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "r") as file:
+                        reader = csv.reader(file.readlines())
+                    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\product_dictionary.csv", "w") as f:
+                        writer = csv.writer(f, lineterminator='\n')
+                        for i, line in enumerate(reader, 0):
+                            if i != delete_product:
+                                writer.writerow(line)
+                    print_object_dictionary_line_by_line(product_dict())
                     return delete_another_product()
                 else:
                     print("Okay, cancelled!")
@@ -263,7 +274,7 @@ def delete_a_product2():
                 delete_product = int(input("Sorry, that isn't in the list. Please enter again\n"))
         return product_menu()
     except ValueError:
-        load_and_print_product_list()
+        print(product_dict())
         print("Oops! Please input a number.")
         return delete_a_product()
     except KeyboardInterrupt:
@@ -271,7 +282,7 @@ def delete_a_product2():
         os._exit(0)
 
 def delete_product_again_prompt():
-    delete_again = input("\nWould you like to delete anything else?\nPress 1 for Yes\nPress 2 for No\n")
+    delete_again = input("Would you like to delete anything else?\nPress 1 for Yes\nPress 2 for No\n")
     return delete_again
 
 def delete_product_again_result():
@@ -290,7 +301,7 @@ def delete_another_product():
 ######################################################       THE COURIER MENU       ######################################################
 
 def courier_menu():
-    print("       Courier Menu:\n")
+    print("Courier Menu:")
     try:
         options = input("Press 0 to return to Main Menu\n"
                         "Press 1 to display the list of current couriers\n"
@@ -322,9 +333,13 @@ def courier_menu():
         print("Keyboard Interrupt :)")
         os._exit(0)
 
+def print_courier_list_line_by_line():
+    for courier in load_courier_list():
+        print(courier) 
+
 def display_list_of_couriers():
     print("Here is the list of couriers:")
-    load_and_print_courier_list()
+    print_courier_list_line_by_line()
     while True:
         finished_looking = input("Press 0 to return to the Product Menu once you're done\n")
         if finished_looking == "0":
@@ -333,18 +348,18 @@ def display_list_of_couriers():
             print("Invalid input. Please enter again.")
     return courier_menu() 
 
-def append_courier_to_db(new_courier, new_phone):
-    sql = "INSERT INTO couriers (courier_name, phone) VALUES (%s, %s)"
-    val = (new_courier, new_phone)
-    cursor.execute(sql, val)
-    connection.commit()
+def append_courier_to_csv(new_courier, new_phone):
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "a") as file:
+            fieldnames = ["courier_name", "phone"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator='\n')
+            writer.writerow({"courier_name": new_courier, "phone": new_phone})
 
 def create_new_courier():
     print("Add New Courier:")
     return create_new_courier2()
     
 def create_new_courier2():
-    load_and_print_courier_list()
+    print(load_courier_list())
     new_courier = input("What courier would you like to add?\n"
                         "You can press 0 to go back.\n").title()
     if new_courier == "0":
@@ -352,9 +367,9 @@ def create_new_courier2():
         return courier_menu()
     else:
         new_phone = input("What is their phone number?\n")
-        append_courier_to_db(new_courier, new_phone)
+        append_courier_to_csv(new_courier, new_phone)
         print("You have successfully added {} to the list!".format(new_courier))
-        load_and_print_courier_list()
+        print(load_courier_list())
         return create_another_courier()
 
 def continue_adding_courier_prompt():
@@ -374,51 +389,41 @@ def continue_adding_courier_result():
 def create_another_courier():
     return continue_adding_courier_result()
 
-def update_courier_in_db(new_courier, new_phone, change_courier):
-    cursor.execute("UPDATE couriers SET courier_name=%s, phone=%s WHERE courier_id=%s", (new_courier, new_phone, change_courier))
-    connection.commit()
-
-def courier_id_list():
-    cursor.execute("SELECT courier_id FROM couriers")
-    result_set = cursor.fetchall()
-    result = []
-    for x in result_set:
-        result.append(x[0])
-    return result
-
 def update_courier(): #if both inputs are empty, say okay, nothing has been updated
     print("Update A Courier:")
     return update_courier2()
 
 def update_courier2():
-    load_and_print_courier_list()
-    courier_id_list()
+    courier_dict()
+    print_object_dictionary_line_by_line(courier_dict())
     try:
         change_courier = int(input("What courier would you like to update?\nYou can press 0 to go back\n"))
         while True:
             if change_courier == 0:
                 break
-            elif change_courier in courier_id_list():
+            elif change_courier in courier_dict().keys():
                 print("To update a courier or phone number, enter what you would like to change it to. Or leave blank to skip:")
-                cursor.execute("SELECT courier_name, phone FROM couriers WHERE courier_id=(%s)", (change_courier))
-                selected_courier = cursor.fetchall()
-                print(selected_courier[0])
-                new_courier = input("Current courier: {}\nReplace with: ".format(selected_courier[0][0])).title()
+                new_courier = input("Current courier: {}\nReplace with: ".format(courier_dict()[change_courier]["courier_name"])).title()
                 if new_courier == "":
-                    new_courier = selected_courier[0][0]
+                    new_courier = courier_dict()[change_courier]["courier_name"]
                 else:
-                    pass
-                new_phone = input("Current phone number: {}\nReplace with: ".format(selected_courier[0][1]))
+                    courier_dict()[change_courier]["courier_name"] = new_courier
+                new_phone = input("Current phone number: {}\nReplace with: ".format(courier_dict()[change_courier]["phone"]))
                 if new_phone == "":
-                    new_phone = selected_courier[0][1]
+                    new_phone = courier_dict()[change_courier]["phone"]
                 else:
-                    pass
-                print(new_courier, new_phone)
-                update_courier_in_db(new_courier, new_phone, change_courier)
-                load_and_print_courier_list()
-                cursor.execute("SELECT courier_name, phone FROM couriers WHERE courier_id=(%s)", (change_courier))
-                selected_courier = cursor.fetchall()
-                print("You have successfully updated number {}:\nCourier name: {}. Phone: {}".format(change_courier, selected_courier[0][0], selected_courier[0][1]))
+                    courier_dict()[change_courier]["phone"] = new_phone
+                print("You have successfully updated number {}:\nCourier name: {}. Phone: {}".format(change_courier, courier_dict()[change_courier]["courier_name"], courier_dict()[change_courier]["phone"]))
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "r") as file:
+                    reader = csv.reader(file.readlines())
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "w") as f:
+                    writer = csv.writer(f, lineterminator='\n')
+                    for i, line in enumerate(reader, 0):
+                        if i == change_courier:
+                            writer.writerow([new_courier, new_phone])
+                        else:
+                            writer.writerow(line)
+                print(courier_dict())
                 return update_another_courier()
             else:
                 change_courier = int(input("Sorry, they aren't in the list. Please enter again\n"))
@@ -446,30 +451,31 @@ def change_courier_result():
 
 def update_another_courier():
     return change_courier_result()
-
-def delete_courier_in_db(delete_courier):
-    cursor.execute("DELETE FROM couriers WHERE courier_id=%s", (delete_courier))
-    connection.commit()
-
+        
 def delete_a_courier():
     print("Delete A Courier")
     return delete_a_courier2()
 
 def delete_a_courier2():
-    load_and_print_courier_list()
-    courier_id_list()
+    courier_dict()
+    print_object_dictionary_line_by_line(courier_dict())
     try:
         delete_courier = int(input("Which courier would you like to delete?\nYou can press 0 to go back\n"))
         while True:
             if delete_courier == 0:
                 break
-            elif delete_courier in courier_id_list():
-                cursor.execute("SELECT courier_name, phone FROM couriers WHERE courier_id=(%s)", (delete_courier))
-                selected_courier = cursor.fetchall()
-                confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format(selected_courier[0][0])))
+            elif delete_courier in courier_dict().keys():
+                confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format(courier_dict()[delete_courier])))
                 if confirm == 1:
-                    delete_courier_in_db(delete_courier)
-                    load_and_print_courier_list()
+                    print("You've successfully deleted {} from the list!".format(courier_dict()[delete_courier]["courier_name"]))
+                    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "r") as file:
+                        reader = csv.reader(file.readlines())
+                    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\courier_dictionary.csv", "w") as f:
+                        writer = csv.writer(f, lineterminator='\n')
+                        for i, line in enumerate(reader, 0):
+                            if i != delete_courier:
+                                writer.writerow(line)
+                    print_object_dictionary_line_by_line(courier_dict())
                     return delete_another_courier()
                 else:
                     print("Okay, cancelled!")
@@ -478,7 +484,7 @@ def delete_a_courier2():
                 delete_courier = int(input("Sorry, they aren't in the list. Please enter again\n"))
         return courier_menu()
     except ValueError:
-        load_and_print_courier_list()
+        print(courier_dict())
         print("Oops! Please input a number.")
         return delete_a_courier()
     except KeyboardInterrupt:
@@ -503,14 +509,9 @@ def delete_another_courier():
     return delete_courier_again_result()
 
 ######################################################       THE ORDER MENU       ######################################################
-def load_and_print_order_list():
-    cursor.execute('SELECT * FROM orders')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f'Order ID: {row[0]}, Customer Name: {row[1]}, Customer Address: {row[2]}, Customer Phone: {row[3]}, Courier: {row[4]}, Status: {row[5]}, Items: {row[6]}')
 
 def order_menu():
-    print("       Order Menu:\n")
+    print("Order Menu:")
     try:
         options = input("Press 0 to return to Main Menu\n"
                         "Press 1 to display the list of current orders\n"
@@ -546,10 +547,13 @@ def order_menu():
         print("Keyboard Interrupt :)")
         os._exit(0)
 
+def print_order_list_line_by_line():
+    for order in load_order_list():
+        print(order) 
+
 def display_list_of_orders():
     print("Here is the list of orders:")
-    load_and_print_order_list()
-    
+    print_order_list_line_by_line()
     while True:
         finished_looking = input("Press 0 to return to the Order Menu once you're done\n")
         if finished_looking == "0":
@@ -558,52 +562,41 @@ def display_list_of_orders():
             print("Invalid input. Please enter again.")
     return order_menu()
 
-def append_order_to_db(new_name, new_address, new_phone, order_courier, order_status, order_products):
-    sql = "INSERT INTO orders (customer_name, customer_address, customer_phone, courier, order_status, items) VALUES (%s, %s, %s, %s, %s, %s)"
-    val = (new_name, new_address, new_phone, order_courier, order_status, order_products)
-    cursor.execute(sql, val)
-    connection.commit()
+def append_order_to_csv(new_name, new_address, new_phone, order_courier, order_status, order_products):
+    with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "a") as file:
+            fieldnames = ["customer_name", "customer_address", "customer_phone", "courier", "status", "items"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator='\n')
+            writer.writerow({"customer_name": new_name, "customer_address": new_address, "customer_phone": new_phone, "courier": order_courier, "status": order_status, "items": order_products})
 
 def create_new_order():
     print("Create A New Order:")
-    return create_new_order2()
 
 def create_new_order2():
-    load_and_print_order_list()
-    
+    product_dict()
+    courier_dict()
+    print_object_dictionary_line_by_line(order_dict())
     new_name = input("What is the name of the customer would you like to add?\nYou can press 0 to go back.\n").title()
     if new_name == "0":
         print("Okay! Returning to Order Menu")
         return order_menu()
-    
     else:
-        new_address = input("What is their address?\n").title()
-        
+        new_address = input("What is their address?\n").title() #maybe first line, second, city, post code?
         new_phone = input("What is their number?\n")
-        
-        load_and_print_product_list()
+        print_object_dictionary_line_by_line(product_dict())
         print("Please select the customer's chosen products from the list. Press 0 when done.")
-        
-        order_products_list = []
+        order_products = []
         choose_products = input("Product number: ")
         while choose_products != "0":
-            order_products_list.append(choose_products)
-            print(order_products_list)
+            order_products.append(choose_products)
+            print(order_products)
             choose_products = input("Product number: ")
-        
-        print(order_products_list)
-        order_products = ', '.join(order_products_list)
-        
-        load_and_print_courier_list()
-        order_courier = int(input("Please select a courier\n"))
-        
+        print(order_products)
+        print_object_dictionary_line_by_line(courier_dict())
+        order_courier = input("Please select a courier\n")
         order_status = "Preparing"
-        
-        append_order_to_db(new_name, new_address, new_phone, order_courier, order_status, order_products)
-        
+        append_order_to_csv(new_name, new_address, new_phone, order_courier, order_status, order_products)
         print("Successfully created the order for {}!".format(new_name))
-        
-        load_and_print_order_list()
+        print_object_dictionary_line_by_line(order_dict())
         return create_another_order()
 
 def continue_adding_order_prompt():
@@ -623,54 +616,48 @@ def continue_adding_order_result():
 def create_another_order():
     return continue_adding_order_result()
 
-def update_order_status_in_db(new_status, change_status):
-    cursor.execute("UPDATE orders SET order_status=%s WHERE order_id=%s", (new_status, change_status))
-    connection.commit()
-
-def order_id_list():
-    cursor.execute("SELECT order_id FROM orders")
-    result_set = cursor.fetchall()
-    result = []
-    for x in result_set:
-        result.append(x[0])
-    return result
-
 def update_order_status():
     print("Update Order Status:")
-    return update_order_status2()
 
 def update_order_status2():
-    load_and_print_order_list()
-    order_id_list()
+    products_to_print = {}
+    line_num = 1
+    for order in load_order_list():
+        products_to_print[line_num] = order
+        line_num += 1
+    for key, value in products_to_print.items():
+        print("{}: {}".format(key, value))
     try:
         while True:
             change_status = int(input("Which order would you like to update the status of?\nYou can press 0 to go back\n"))
             if change_status == 0:
                 break
-            
-            elif change_status in order_id_list():
-                print("To update an order status, please enter one of the following options:\n"
-                        "Press 1 for Preparing\nPress 2 for Out-For-Delivery\nPress 3 for Delivered\n")
-                
-                cursor.execute("SELECT order_status FROM orders WHERE order_id=(%s)", (change_status))
-                selected_order_status = cursor.fetchall()
-                
-                new_status = int(input("Current status: {}\nEnter option here: ".format(selected_order_status[0][0])))
+            elif change_status in products_to_print.keys():
+                new_status = int(input("What would you like to change the status to?\n"
+                                    "Press 1 for Preparing\nPress 2 for Out-For-Delivery\nPress 3 for Delivered\n"))
                 if new_status == 1:
                     new_status = "Preparing"
+                    products_to_print[change_status]["status"] = new_status
                 elif new_status == 2:
                     new_status = "Out-For-Delivery"
+                    products_to_print[change_status]["status"] = new_status
                 elif new_status == 3:
                     new_status = "Delivered"
+                    products_to_print[change_status]["status"] = new_status
                 else:
                     print("Sorry, that wasn't an option")
                     return update_order_status()
-                
-                print("You have successfully updated the order status from {} to {}!".format(selected_order_status[0][0], new_status))
-                
-                update_order_status_in_db(new_status, change_status)
-                
-                load_and_print_order_list()
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "r") as file:
+                    reader = csv.reader(file.readlines())
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "w") as f:
+                    writer = csv.writer(f, lineterminator='\n')
+                    for i, line in enumerate(reader, 0):
+                        if i == change_status:
+                            writer.writerow([products_to_print[change_status]["customer_name"], products_to_print[change_status]["customer_address"], products_to_print[change_status]["customer_phone"], products_to_print[change_status]["courier"], new_status, products_to_print[change_status]["items"]])
+                        else:
+                            writer.writerow(line)
+                print("You have successfully updated the order status from {} to {}!".format(products_to_print[change_status]["status"], new_status))
+                print(load_order_list())
                 return update_another_order_status()
             else:
                 print("Sorry, that isn't in the list.")
@@ -681,7 +668,7 @@ def update_order_status2():
     except KeyboardInterrupt:
         print("Keyboard Interrupt :)")
         os._exit(0)
-
+        
 def change_order_status_prompt():
     change_order_status = input("Would you like to update another status?\nPress 1 for Yes\nPress 2 for No\n")
     return change_order_status
@@ -699,95 +686,86 @@ def change_order_status_result():
 def update_another_order_status():
     return change_order_status_result()
 
-def update_order_in_db(replace_name, replace_address, replace_phone, replace_courier, replace_status, replacement_products, choose_update_order):
-    cursor.execute("UPDATE orders SET customer_name=%s, customer_address=%s, customer_phone=%s, courier=%s, order_status=%s, items=%s WHERE order_id=%s",
-                (replace_name, replace_address, replace_phone, replace_courier, replace_status, replacement_products, choose_update_order))
-    connection.commit()
-
 def update_order():
     print("Update An Order:")
-    return update_order2()
 
 def update_order2():
-    load_and_print_order_list()
-    order_id_list()
+    order_dict()
+    courier_dict()
+    product_dict()
+    print_object_dictionary_line_by_line(order_dict())
     try:
         while True:
             choose_update_order = int(input("Which order would you like to update?\nYou can press 0 to go back\n"))
-            
             if choose_update_order == 0:
                 return order_menu()
-            
-            elif choose_update_order in order_id_list():
+            elif choose_update_order in order_dict().keys():
                 print("Please update the property, or leave blank to skip:")
-                
-                cursor.execute("SELECT * FROM orders WHERE order_id=(%s)", (choose_update_order))
-                selected_order = cursor.fetchall()
-                
-                replace_name = input("Current customer name: {}\nReplace with: ".format(selected_order[0][1])).title()
+                replace_name = input("Current customer name: {}\nReplace with: ".format(order_dict()[choose_update_order]["customer_name"])).title()
                 if replace_name == "":
-                    replace_name = selected_order[0][1]
+                    replace_name = order_dict()[choose_update_order]["customer_name"]
                 else:
-                    pass
-                
-                replace_address = input("Current customer address: {}\nReplace with: ".format(selected_order[0][2]))
+                    order_dict()[choose_update_order]["customer_name"] = replace_name
+                replace_address = input("Current customer address: {}\nReplace with: ".format(order_dict()[choose_update_order]["customer_address"]))
                 if replace_address == "":
-                    replace_address = selected_order[0][2]
+                    replace_address = order_dict()[choose_update_order]["customer_address"]
                 else:
-                    pass
-                
-                replace_phone = input("Current phone number: {}\nReplace with: ".format(selected_order[0][3]))
+                    order_dict()[choose_update_order]["customer_address"] = replace_address
+                replace_phone = input("Current phone number: {}\nReplace with: ".format(order_dict()[choose_update_order]["customer_phone"]))
                 if replace_phone == "":
-                    replace_phone = selected_order[0][3]
+                    replace_phone = order_dict()[choose_update_order]["customer_phone"]
                 else:
-                    pass
-                
-                load_and_print_courier_list()
-                replace_courier = input("Current courier: {}\nReplace with: ".format(selected_order[0][4]))
+                    order_dict()[choose_update_order]["customer_phone"] = replace_phone
+                print(courier_dict())
+                replace_courier = input("Current courier: {}\nReplace with: ".format(order_dict()[choose_update_order]["courier"]))
                 if replace_courier == "":
-                    replace_courier = selected_order[0][4]
+                    replace_courier = order_dict()[choose_update_order]["courier"]
                 else:
-                    pass
-                
+                    order_dict()[choose_update_order]["courier"] = replace_courier
                 while True:
                     replace_status = input("What would you like to change the status to?\n"
                                         "Press 1 for Preparing\nPress 2 for Out-For-Delivery\nPress 3 for Delivered\n"
-                                        "Current status: {}\nEnter here: ".format(selected_order[0][5]))
+                                        "Current status: {}\nEnter here: ".format(order_dict()[choose_update_order]["status"]))
                     if replace_status == "":
-                        replace_status = selected_order[0][5]
+                        replace_status = order_dict()[choose_update_order]["status"]
                         break
                     elif replace_status == "1":
                         replace_status = "Preparing"
+                        order_dict()[choose_update_order]["status"] = replace_status
                         break
                     elif replace_status == "2":
                         replace_status = "Out-For-Delivery"
+                        order_dict()[choose_update_order]["status"] = replace_status
                         break
                     elif replace_status == "3":
                         replace_status = "Delivered"
+                        order_dict()[choose_update_order]["status"] = replace_status
                         break
                     else:
                         print("Sorry, that wasn't an option")
-                        
-                load_and_print_product_list()
+                print(product_dict())
                 replacement_products_list = []
-                replace_items = input("Current products: {}\nNew product: ".format(selected_order[0][6]))
+                replace_items = input("Current products: {}\nNew product: ".format(order_dict()[choose_update_order]["items"]))
                 if replace_items == "":
-                    items_string_to_list = list(selected_order[0][6].split(", "))
-                    replacement_products_list = items_string_to_list
-                    print(replacement_products_list)
-                    
+                    replace_items = order_dict()[choose_update_order]["items"]
+                    replacement_products_list = order_dict()[choose_update_order]["items"]
                 else:
                     while replace_items != "0":
                         replacement_products_list.append(replace_items)
                         print("Current list: {}".format(replacement_products_list))
                         replace_items = input("New product: ")
+                    order_dict()[choose_update_order]["items"] = replacement_products_list
                     print(replacement_products_list)
-                    
-                replacement_products = ', '.join(replacement_products_list)
-                
-                update_order_in_db(replace_name, replace_address, replace_phone, replace_courier, replace_status, replacement_products, choose_update_order)
-                
-                load_and_print_order_list()
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "r") as file:
+                    reader = csv.reader(file.readlines())
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "w") as f:
+                    writer = csv.writer(f, lineterminator='\n')
+                    for i, line in enumerate(reader, 0):
+                        if i == choose_update_order:
+                            writer.writerow([replace_name, replace_address, replace_phone, replace_courier, replace_status, replacement_products_list])
+                        else:
+                            writer.writerow(line)
+                print(order_dict()[choose_update_order])
                 return update_another_order()
             else:
                 print("Sorry, that isn't in the list. Please enter again")
@@ -816,41 +794,46 @@ def change_order_result():
 def update_another_order():
     return change_order_result()
 
-def delete_order_in_db(delete_order):
-    cursor.execute("DELETE FROM orders WHERE order_id=%s", (delete_order))
-    connection.commit()
-
 def delete_an_order():
     print("Delete An Order:")
     return delete_an_order2()
 
 def delete_an_order2():
-    load_and_print_order_list()
-    order_id_list()
+    products_to_print = {}
+    line_num = 1
+    for order in load_order_list():
+        products_to_print[line_num] = order
+        line_num += 1
+    for key, value in products_to_print.items():
+        print("{}: {}".format(key, value))
     try:
         delete_order = int(input("Which order would you like to delete?\nYou can press 0 to go back\n"))
-        
         if delete_order == 0:
             return order_menu()
-        
-        elif delete_order in order_id_list():
-            cursor.execute("SELECT customer_name, customer_address, customer_phone, courier, order_status, items FROM orders WHERE order_id=(%s)", (delete_order))
-            selected_product = cursor.fetchall()
-            
-            confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format(selected_product[0])))
+        elif delete_order in products_to_print.keys():
+            confirm = int(input("Are you sure you want to delete {}?\nPress 1 for Yes\nPress 2 to cancel\n".format(products_to_print[delete_order])))
             if confirm == 1:
-                print("You've successfully deleted {}'s order from the list!".format(selected_product[0][0]))
-                delete_order_in_db(delete_order)
-                load_and_print_order_list()
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "r") as file:
+                    reader = csv.reader(file.readlines())
+                with open(r"C:\Users\lilbl\VSCode\MINI-PROJECT\source\order_dictionary.csv", "w") as f:
+                    writer = csv.writer(f, lineterminator='\n')
+                    for i, line in enumerate(reader, 0):
+                        if i != delete_order:
+                            writer.writerow(line)
+                print("You've successfully deleted {}'s order from the list!".format(products_to_print[delete_order]["customer_name"]))
+                products_to_print = {}
+                line_num = 1
+                for order in load_order_list():
+                    products_to_print[line_num] = order
+                    line_num += 1
+                for key, value in products_to_print.items():
+                    print("{}: {}".format(key, value))
                 return delete_another_order()
-            
             else:
                 print("Okay, cancelled!")
                 return delete_an_order()
-            
         else:
             print("Sorry, that isn't an option")
-            return delete_an_order2()
     except ValueError:
         print("Oops! Please input a number.")
         return delete_an_order()
@@ -875,5 +858,5 @@ def delete_order_again_result():
 def delete_another_order():
     return delete_order_again_result()
 
-print("Welcome to the app!!\n")
 main_menu()
+#1194   1071    963     855
