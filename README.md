@@ -39,7 +39,7 @@ An example of the what happens when you run the app:
 
 ##### In the file `app_no_db.py`, the code for the **Product Menu** starts on line 66, **Courier Menu** starts on line 301, and **Order Menu** starts on line 511.
 
-## How To
+## Running the Program
 This is a program that runs on the command line (CLI).
 
 After cloning the repo, open the file called `app_no_db.py`. All you need to do is change the paths on lines 7, 15 and 23 to your own local paths. This is so Python can find `product_dictionary.csv`, `courier_dictionary.csv` and `order_dictionary.csv` when running the program.
