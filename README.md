@@ -37,11 +37,12 @@ An example of the what happens when you run the app:
 * Our next task was to move our products, couriers and orders to CSV files (so we added prices to our products and phone numbers to our couriers to make them two-dimensional). From the CSV files, I loaded the data as dictionaries, rather than lists. This completely changed how I accessed variables, especially when needing to update data from user input. I made new temporary dictionaries in my update functions to add the CSV line numbers as keys, so the user wouldn't have to type out the entire product/courier/order name - they could just put in a number instead.
 * In week 5 and 6 of this project, our task was to maintain all of our data in a database. We used Docker to set up our local MySQL databases, and used the MySQL commands to create tables, insert into them, and update or delete directly from them.
 
+##### In the file `app_no_db.py`, the code for the **Product Menu** starts on line 66, **Courier Menu** starts on line 301, and **Order Menu** starts on line 511.
 
 ## How To
 This is a program that runs on the command line (CLI).
 
-After cloning the repo, open the file called `app_no_db.py`. All you need to do is change the paths on lines 7, 15 and 23 to your own local paths so that Python can find the CSVs when running the program.
+After cloning the repo, open the file called `app_no_db.py`. All you need to do is change the paths on lines 7, 15 and 23 to your own local paths. This is so Python can find `product_dictionary.csv`, `courier_dictionary.csv` and `order_dictionary.csv` when running the program.
 
 Then, just run the file, and follow the instructions in the terminal!
 
@@ -59,6 +60,7 @@ This version of the application runs in the same way as `app_no_db.py`. The only
 ## If I Had More Time
 * Unit tests!
 * Refactor large functions to make them unit testable
+* Since a lot of functions do the same thing, just in a different part of the app, I would remove the duplicate functions and have universal functions that take in arguments
 * Improved/more consistent error handling
 * Would keep the functions that read from and write to the CSV files, so that the data can be stored in both the CSV files and the database
 * Some data visualisation using Jupyter Notebooks
