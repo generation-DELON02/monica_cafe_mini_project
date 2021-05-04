@@ -37,7 +37,7 @@ An example of the what happens when you run the app:
 * Our next task was to move our products, couriers and orders to CSV files (so we added prices to our products and phone numbers to our couriers to make them two-dimensional). From the CSV files, I loaded the data as dictionaries, rather than lists. This completely changed how I accessed variables, especially when needing to update data from user input. I made new temporary dictionaries in my update functions to add the CSV line numbers as keys, so the user wouldn't have to type out the entire product/courier/order name - they could just put in a number instead.
 * In week 5 and 6 of this project, our task was to maintain all of our data in a database. We used Docker to set up our local MySQL databases, and used the MySQL commands to create tables, insert into them, and update or delete directly from them.
 
-##### In the file `app_no_db.py`, the code for the **Product Menu** starts on line 66, **Courier Menu** starts on line 301, and **Order Menu** starts on line 511.
+#### In the file `app_no_db.py`, the code for the **Product Menu** starts on line 66, **Courier Menu** starts on line 301, and **Order Menu** starts on line 511.
 
 ## Running the Program
 This is a program that runs on the command line (CLI).
