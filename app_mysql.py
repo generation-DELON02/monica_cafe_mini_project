@@ -17,6 +17,7 @@ connection = pymysql.connect(
     database
     )
 cursor = connection.cursor()
+# test
 
 def load_and_print_product_list():
     cursor.execute('SELECT product_id, product_name, price FROM products')
